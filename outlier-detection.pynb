@@ -1,0 +1,285 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "import matplotlib.pyplot as plt\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.metrics import accuracy_score,precision_score, f1_score,recall_score,classification_report,confusion_matrix\n",
+    "from sklearn.ensemble import RandomForestClassifier\n",
+    "df = pd.read_csv('skin.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Column1</th>\n",
+       "      <th>Column2</th>\n",
+       "      <th>Column3</th>\n",
+       "      <th>Column4</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>74</td>\n",
+       "      <td>85</td>\n",
+       "      <td>123</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>73</td>\n",
+       "      <td>84</td>\n",
+       "      <td>122</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>72</td>\n",
+       "      <td>83</td>\n",
+       "      <td>121</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>70</td>\n",
+       "      <td>81</td>\n",
+       "      <td>119</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>70</td>\n",
+       "      <td>81</td>\n",
+       "      <td>119</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   Column1  Column2  Column3  Column4\n",
+       "0       74       85      123        1\n",
+       "1       73       84      122        1\n",
+       "2       72       83      121        1\n",
+       "3       70       81      119        1\n",
+       "4       70       81      119        1"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.head(5)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0    1\n",
+       "1    1\n",
+       "2    1\n",
+       "3    1\n",
+       "Name: Column4, dtype: int64"
+      ]
+     },
+     "execution_count": 21,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "x = df.iloc[:,0:3]\n",
+    "y = df.iloc[:,-1]\n",
+    "from sklearn.preprocessing import MinMaxScaler\n",
+    "scaler = MinMaxScaler()\n",
+    "scaler.fit(x)\n",
+    "x = scaler.transform(x)\n",
+    "y.head(4)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.9994613564025137"
+      ]
+     },
+     "execution_count": 24,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_train ,X_test,y_train,y_test = train_test_split(x,y,test_size=0.25,random_state=42)\n",
+    "rf = RandomForestClassifier(n_estimators=100, random_state=50, max_features = 'sqrt', n_jobs=-1, verbose = 0,oob_score=True,min_samples_split=2,max_depth=None)\n",
+    "rf.fit(X_train,y_train)\n",
+    "y_pred = rf.predict(X_test)\n",
+    "y_test = np.array(y_test)\n",
+    "y_pred = np.array(y_pred)\n",
+    "# calculate the confusion matrix; labels is numpy array of classification labels\n",
+    "cm = np.zeros((len(y_test), len(y_test)))\n",
+    "for a, p in zip(y_test, y_pred):\n",
+    "    cm[a][p] += 1\n",
+    "\n",
+    "    # also get the accuracy easily with numpy\n",
+    "    accuracy = (y_test == y_pred).sum() / float(len(y_test))\n",
+    "accuracy\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 288x288 with 2 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "y_test = pd.Series(y_test,name = 'Actual')\n",
+    "y_pred = pd.Series(y_pred,name = 'Predicted')\n",
+    "df_confusion = pd.crosstab(y_test, y_pred)\n",
+    "df_confusion\n",
+    "import matplotlib.pyplot as plt\n",
+    "def plot_confusion_matrix(df_confusion, title='Confusion matrix', cmap=plt.cm.gray_r):\n",
+    "    plt.matshow(df_confusion, cmap=cmap) # imshow\n",
+    "    #plt.title(title)\n",
+    "    plt.colorbar()\n",
+    "    tick_marks = np.arange(len(df_confusion.columns))\n",
+    "    plt.xticks(tick_marks, df_confusion.columns, rotation=45)\n",
+    "    plt.yticks(tick_marks, df_confusion.index)\n",
+    "    #plt.tight_layout()\n",
+    "    plt.ylabel(df_confusion.index.name)\n",
+    "    plt.xlabel(df_confusion.columns.name)\n",
+    "\n",
+    "plot_confusion_matrix(df_confusion)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Accuracy of model:99.9461356403\n",
+      "Evaluation Metrics:\n",
+      "[[12633     3]\n",
+      " [   30 48599]]\n",
+      "              precision    recall  f1-score   support\n",
+      "\n",
+      "           1       1.00      1.00      1.00     12636\n",
+      "           2       1.00      1.00      1.00     48629\n",
+      "\n",
+      "   micro avg       1.00      1.00      1.00     61265\n",
+      "   macro avg       1.00      1.00      1.00     61265\n",
+      "weighted avg       1.00      1.00      1.00     61265\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "\n",
+    "\n",
+    "acc3 = accuracy_score(y_test, y_pred)\n",
+    "print(\"Accuracy of model:{}\".format(acc3*100)) \n",
+    "prec= precision_score(y_test,y_pred,average = 'macro')\n",
+    "#recall = TP/(TP + FN)\n",
+    "rec= recall_score(y_test,y_pred,average = 'macro')\n",
+    "#f1 = 2*Precision*Recall/Precision + Recall # Takes True Positive\n",
+    "f1= f1_score(y_test,y_pred,average = 'macro')\n",
+    "print'Evaluation Metrics:'\n",
+    "print confusion_matrix(y_test,y_pred)\n",
+    "print classification_report(y_test,y_pred)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 2",
+   "language": "python",
+   "name": "python2"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 2
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython2",
+   "version": "2.7.17"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
